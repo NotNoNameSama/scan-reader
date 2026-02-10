@@ -3,7 +3,7 @@
  **********************/
 const CONFIG = {
     path: "scans/",        // dossier des images (PAS un zip)
-    ext: ".jpg",           // extension (.jpg, .png, .webp…)
+    ext: ".JPEG",           // extension (.jpg, .png, .webp…)
     totalPages: 20,        // ⚠️ nombre EXACT d’images
     pad: 3                 // 001, 002, 003 → mettre 2 pour 01, 02
 };
