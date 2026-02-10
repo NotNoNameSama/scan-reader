@@ -3,8 +3,8 @@
  **********************/
 const CONFIG = {
     path: "scans/",        // dossier des images (PAS un zip)
-    ext: ".JPEG",           // extension (.jpg, .png, .webp…)
-    totalPages: 20,        // ⚠️ nombre EXACT d’images
+    ext: ".jpeg",           // extension (.jpg, .png, .webp…)
+    totalPages: 52,        // ⚠️ nombre EXACT d’images
     pad: 3                 // 001, 002, 003 → mettre 2 pour 01, 02
 };
 
@@ -140,3 +140,4 @@ showPage();
 window.zoomIn = zoomIn;
 window.zoomOut = zoomOut;
 window.toggleMode = toggleMode;
+
