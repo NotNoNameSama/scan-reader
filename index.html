@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Scan Reader</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #000;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+        overflow: hidden;
+    }
+
+    body.light {
+        background: #f5f5f5;
+        color: #000;
+    }
+
+    #viewer {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #page {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.2s ease;
+    }
+
+    #controls {
+        position: fixed;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 14px;
+        padding: 8px 14px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 30px;
+        z-index: 10;
+    }
+
+    body.light #controls {
+        background: rgba(255,255,255,0.8);
+    }
+
+    button {
+        border: none;
+        background: none;
+        color: inherit;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    #counter {
+        position: fixed;
+        top: 10px;
+        right: 15px;
+        font-size: 14px;
+        opacity: 0.7;
+    }
+</style>
+</head>
+
+<body>
+
+<div id="viewer">
+    <img id="page" alt="scan">
+</div>
+
+<div id="counter"></div>
+
+<div id="controls">
+    <button onclick="zoomOut()">➖</button>
+    <button onclick="toggleMode()">🌙</button>
+    <button onclick="zoomIn()">➕</button>
+</div>
+
+<script>
+/**********************
+ * CONFIGURATION
+ **********************/
+const CONFIG = {
+    path: "scans/",     // dossier réel (PAS zip)
+    ext: ".jpg",        // extension exacte
+    totalPages: 20,     // ⚠️ nombre EXACT d’images
+    pad: 3              // 001, 002, 003
+};
+
+/**********************
+ * VARIABLES
+ **********************/
+let currentPage = 0;
+let zoomLevel = 1;
+let pages = [];
+
+const img = document.getElementById("page");
+const counter = document.getElementById("counter");
+const viewer = document.getElementById("viewer");
+
+/**********************
+ * INIT
+ **********************/
+function initPages() {
+    pages = [];
+    for (let i = 1; i <= CONFIG.totalPages; i++) {
+        const num = String(i).padStart(CONFIG.pad, "0");
+        pages.push(`${CONFIG.path}${num}${CONFIG.ext}`);
+    }
+}
+
+function showPage() {
+    img.src = pages[currentPage];
+    img.style.transform = `scale(${zoomLevel})`;
+    counter.textContent = `${currentPage + 1} / ${pages.length}`;
+}
+
+/**********************
+ * NAVIGATION
+ **********************/
+function nextPage() {
+    if (currentPage < pages.length - 1) {
+        currentPage++;
+        resetZoom();
+        showPage();
+    }
+}
+
+function prevPage() {
+    if (currentPage > 0) {
+        currentPage--;
+        resetZoom();
+        showPage();
+    }
+}
+
+/**********************
+ * ZOOM
+ **********************/
+function zoomIn() {
+    zoomLevel += 0.2;
+    applyZoom();
+}
+
+function zoomOut() {
+    zoomLevel = Math.max(1, zoomLevel - 0.2);
+    applyZoom();
+}
+
+function resetZoom() {
+    zoomLevel = 1;
+    applyZoom();
+}
+
+function applyZoom() {
+    img.style.transform = `scale(${zoomLevel})`;
+}
+
+/**********************
+ * MODE NUIT / JOUR
+ **********************/
+function toggleMode() {
+    document.body.classList.toggle("light");
+}
+
+/**********************
+ * CLICK / TAP (MANGA)
+ **********************/
+viewer.addEventListener("click", (e) => {
+    const middle = window.innerWidth / 2;
+    if (e.clientX > middle) nextPage();
+    else prevPage();
+});
+
+/**********************
+ * SWIPE MOBILE
+ **********************/
+let startX = 0;
+
+viewer.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+});
+
+viewer.addEventListener("touchend", e => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = endX - startX;
+
+    if (diff < -50) nextPage();
+    if (diff > 50) prevPage();
+});
+
+/**********************
+ * CLAVIER (PC)
+ **********************/
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") nextPage();
+    if (e.key === "ArrowLeft") prevPage();
+    if (e.key === "+") zoomIn();
+    if (e.key === "-") zoomOut();
+});
+
+/**********************
+ * ERREUR IMAGE
+ **********************/
+img.onerror = () => {
+    console.error("Image introuvable :", pages[currentPage]);
+};
+
+/**********************
+ * LANCEMENT
+ **********************/
+initPages();
+showPage();
+</script>
+
+</body>
+</html>
